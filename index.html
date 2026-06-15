@@ -1,0 +1,860 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ocean Music Player - Rehan & Nasya</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0a1628;
+            --surface: #0f2035;
+            --surface2: #152a45;
+            --border: #1e3d5c;
+            --text: #dce8f5;
+            --text-muted: #6b8aaa;
+            --accent: #2196f3;
+            --accent-hover: #42a5f5;
+            --accent-light: #64b5f6;
+            --progress-bg: #1a3555;
+            --danger: #e74c3c;
+            --shadow: 0 8px 32px rgba(0,20,40,0.6);
+            --ocean-deep: #0d2137;
+            --ocean-surface: #14456e;
+            --ocean-glow: rgba(33,150,243,0.3);
+            --love-pink: #ff6b9d;
+            --love-soft: rgba(255,107,157,0.15);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+            background-image:
+                radial-gradient(ellipse at top, rgba(33,150,243,0.08) 0%, transparent 50%),
+                radial-gradient(ellipse at bottom, rgba(33,150,243,0.04) 0%, transparent 50%);
+        }
+
+        .container {
+            display: flex;
+            gap: 20px;
+            max-width: 960px;
+            width: 100%;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .player-container {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            padding: 28px 24px 20px;
+            width: 100%;
+            max-width: 460px;
+            box-shadow: var(--shadow), 0 0 40px var(--ocean-glow);
+            flex: 1;
+            min-width: 340px;
+        }
+
+        .player-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .player-title {
+            font-size: 13px;
+            font-weight: 600;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--accent);
+        }
+
+        .cover-art {
+            width: 100%;
+            aspect-ratio: 1 / 1;
+            background: var(--surface2);
+            border-radius: 16px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            border: 2px solid var(--border);
+            position: relative;
+            box-shadow: 0 0 30px rgba(33,150,243,0.15);
+        }
+
+        .cover-art img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .cover-placeholder {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-muted);
+        }
+
+        .cover-placeholder svg {
+            width: 64px;
+            height: 64px;
+            opacity: 0.4;
+            fill: var(--accent);
+        }
+
+        .now-playing { text-align: center; margin-bottom: 16px; }
+
+        .track-title {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 4px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 100%;
+        }
+
+        .track-artist { font-size: 13px; color: var(--text-muted); }
+
+        .progress-container { margin-bottom: 6px; }
+
+        .progress-bar-wrapper {
+            width: 100%;
+            height: 6px;
+            background: var(--progress-bg);
+            border-radius: 3px;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent), var(--accent-light));
+            border-radius: 3px;
+            transition: width 0.1s linear;
+            position: relative;
+        }
+
+        .progress-bar::after {
+            content: '';
+            position: absolute;
+            right: -6px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 14px;
+            height: 14px;
+            background: var(--accent-light);
+            border-radius: 50%;
+            border: 2px solid var(--bg);
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+
+        .progress-bar-wrapper:hover .progress-bar::after { opacity: 1; }
+
+        .time-display {
+            display: flex;
+            justify-content: space-between;
+            font-size: 11px;
+            color: var(--text-muted);
+            margin-bottom: 14px;
+        }
+
+        .volume-control {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 14px;
+        }
+
+        .volume-control input[type="range"] {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 4px;
+            background: var(--progress-bg);
+            border-radius: 2px;
+            cursor: pointer;
+        }
+
+        .volume-control input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 14px;
+            height: 14px;
+            background: var(--accent);
+            border-radius: 50%;
+            cursor: pointer;
+            border: 2px solid var(--bg);
+        }
+
+        .vol-icon {
+            color: var(--text-muted);
+            font-size: 16px;
+            min-width: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .vol-icon svg {
+            width: 18px;
+            height: 18px;
+            fill: currentColor;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 18px;
+            margin-bottom: 16px;
+        }
+
+        .btn {
+            background: none;
+            border: none;
+            color: var(--text);
+            cursor: pointer;
+            transition: all 0.2s;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 8px;
+        }
+
+        .btn:hover { color: var(--accent-hover); }
+
+        .btn-play {
+            width: 56px;
+            height: 56px;
+            background: var(--accent);
+            color: #fff;
+            border-radius: 50%;
+            box-shadow: 0 4px 20px rgba(33,150,243,0.5);
+            padding: 0;
+        }
+
+        .btn-play:hover {
+            background: var(--accent-hover);
+            transform: scale(1.06);
+            box-shadow: 0 6px 28px rgba(33,150,243,0.7);
+        }
+
+        .btn-play svg {
+            width: 24px;
+            height: 24px;
+            fill: currentColor;
+        }
+
+        .btn-icon {
+            width: 40px;
+            height: 40px;
+        }
+
+        .btn-icon svg {
+            width: 20px;
+            height: 20px;
+            fill: currentColor;
+        }
+
+        .playlist-section {
+            border-top: 1px solid var(--border);
+            padding-top: 12px;
+            margin-top: 8px;
+        }
+
+        .playlist-header {
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .btn-add {
+            font-size: 11px;
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            color: var(--accent);
+            padding: 5px 10px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .btn-add:hover { background: var(--accent); color: #fff; }
+
+        .playlist {
+            list-style: none;
+            max-height: 180px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+        }
+
+        .playlist-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.2s;
+        }
+
+        .playlist-item:hover { background: var(--surface2); }
+        .playlist-item.active { background: var(--accent); color: #fff; }
+        .playlist-item.active .pl-artist { color: rgba(255,255,255,0.7); }
+
+        .pl-info { flex: 1; min-width: 0; }
+        .pl-title { font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .pl-artist { font-size: 10px; color: var(--text-muted); }
+
+        /* Love Letter Panel */
+        .love-panel {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            padding: 24px 20px;
+            width: 100%;
+            max-width: 420px;
+            box-shadow: var(--shadow), 0 0 30px var(--ocean-glow);
+            flex: 1;
+            min-width: 300px;
+            max-height: 620px;
+            overflow-y: auto;
+        }
+
+        .love-panel::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .love-panel::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .love-panel::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 4px;
+        }
+
+        .love-title {
+            font-size: 13px;
+            font-weight: 600;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--love-pink);
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .love-title svg {
+            width: 18px;
+            height: 18px;
+            fill: var(--love-pink);
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.15); opacity: 0.7; }
+        }
+
+        .love-message {
+            background: var(--love-soft);
+            border: 1px solid rgba(255,107,157,0.25);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 14px;
+            font-size: 14px;
+            line-height: 1.8;
+            color: #f0c0d0;
+            font-style: italic;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .love-message:hover {
+            border-color: var(--love-pink);
+            box-shadow: 0 0 20px rgba(255,107,157,0.15);
+            transform: translateY(-2px);
+        }
+
+        .love-message .heart-icon {
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            width: 28px;
+            height: 28px;
+            background: var(--love-pink);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 12px rgba(255,107,157,0.5);
+        }
+
+        .love-message .heart-icon svg {
+            width: 14px;
+            height: 14px;
+            fill: #fff;
+        }
+
+        .love-footer {
+            text-align: center;
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-top: 8px;
+            font-style: italic;
+        }
+
+        .love-footer span {
+            color: var(--love-pink);
+            font-weight: 600;
+        }
+
+        /* Modal */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(5,15,30,0.8);
+            backdrop-filter: blur(4px);
+            z-index: 100;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-overlay.show { display: flex; }
+
+        .modal {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 24px;
+            width: 90%;
+            max-width: 440px;
+            box-shadow: var(--shadow);
+        }
+
+        .modal h3 { margin-bottom: 16px; font-size: 16px; font-weight: 600; }
+
+        .modal label {
+            display: block;
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+            font-weight: 500;
+        }
+
+        .modal input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'Inter', sans-serif;
+            font-size: 13px;
+            margin-bottom: 14px;
+            outline: none;
+        }
+
+        .modal input:focus { border-color: var(--accent); }
+
+        .modal-buttons { display: flex; gap: 10px; justify-content: flex-end; }
+
+        .modal-buttons button {
+            padding: 8px 18px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        .btn-cancel { background: var(--surface2); color: var(--text); }
+        .btn-save { background: var(--accent); color: #fff; }
+
+        @media (max-width: 760px) {
+            .container { flex-direction: column; align-items: center; }
+            .love-panel { max-height: 400px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <!-- Music Player -->
+        <div class="player-container">
+            <div class="player-header">
+                <div class="player-title">Ocean Player</div>
+                <span style="font-size:11px;color:var(--text-muted)" id="trackCount">0 tracks</span>
+            </div>
+
+            <div class="cover-art" id="coverArt">
+                <div class="cover-placeholder">
+                    <svg viewBox="0 0 24 24"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg>
+                    <span style="font-size:12px;">No Track</span>
+                </div>
+            </div>
+
+            <div class="now-playing">
+                <div class="track-title" id="trackTitle">No Track Selected</div>
+                <div class="track-artist" id="trackArtist">Add songs via Catbox links</div>
+            </div>
+
+            <div class="progress-container">
+                <div class="progress-bar-wrapper" id="progressWrapper">
+                    <div class="progress-bar" id="progressBar" style="width:0%"></div>
+                </div>
+            </div>
+            <div class="time-display">
+                <span id="currentTime">0:00</span>
+                <span id="totalTime">0:00</span>
+            </div>
+
+            <div class="volume-control">
+                <span class="vol-icon" id="volIcon">
+                    <svg viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>
+                </span>
+                <input type="range" id="volumeSlider" min="0" max="100" value="70" />
+            </div>
+
+            <div class="controls">
+                <button class="btn btn-icon" id="btnShuffle" title="Shuffle">
+                    <svg viewBox="0 0 24 24"><path d="M10.59 9.17L5.41 4 4 5.41l5.17 5.17 1.42-1.41zM14.5 4l2.04 2.04L4 18.59 5.41 20 17.96 7.46 20 9.5V4h-5.5zm.33 9.41l-1.41 1.41 3.13 3.13L14.5 20H20v-5.5l-2.04 2.04-3.13-3.13z"/></svg>
+                </button>
+                <button class="btn btn-icon" id="btnPrev" title="Previous">
+                    <svg viewBox="0 0 24 24"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg>
+                </button>
+                <button class="btn btn-play" id="btnPlay" title="Play">
+                    <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                </button>
+                <button class="btn btn-icon" id="btnNext" title="Next">
+                    <svg viewBox="0 0 24 24"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/></svg>
+                </button>
+                <button class="btn btn-icon" id="btnRepeat" title="Repeat">
+                    <svg viewBox="0 0 24 24"><path d="M7 7h10v3l4-4-4-4v3H5v6h2V7zm10 10H7v-3l-4 4 4 4v-3h12v-6h-2v4z"/></svg>
+                </button>
+            </div>
+
+            <div class="playlist-section">
+                <div class="playlist-header">
+                    <span>Playlist</span>
+                    <button class="btn-add" id="btnAddTrack">+ Add Track</button>
+                </div>
+                <ul class="playlist" id="playlist">
+                    <li style="padding:16px;text-align:center;color:var(--text-muted);font-size:12px">Empty playlist</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Love Letter Panel - Rehan to Nasya -->
+        <div class="love-panel" id="lovePanel">
+            <div class="love-title">
+                <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+                <span>For Nasya, From Rehan</span>
+            </div>
+
+            <div class="love-message">
+                <div class="heart-icon">
+                    <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+                </div>
+                Nasya, kamu tau gak? Setiap kali aku denger lagu, aku selalu inget kamu. Kamu itu kayak melodi yang gak pernah bosen aku dengerin. Ada yang bilang cinta itu buta, tapi aku bisa lihat dengan jelas kalau kamu adalah yang terbaik buat aku. Terima kasih udah jadi bagian dari hidup aku, Nasya. Kamu adalah nada terindah dalam simfoni hidupku.
+            </div>
+
+            <div class="love-message">
+                <div class="heart-icon">
+                    <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+                </div>
+                Kalau aku disuruh milih antara dunia dan kamu, aku pilih kamu. Karena tanpa kamu, duniaku gak ada artinya. Kamu adalah alasan aku tersenyum setiap pagi, alasan aku semangat menjalani hari. Jarak boleh memisahkan kita, tapi hati aku selalu dekat dengan kamu. Kamu adalah bintang paling terang di langit malamku, Nasya.
+            </div>
+
+            <div class="love-message">
+                <div class="heart-icon">
+                    <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+                </div>
+                Aku bukan penyair yang bisa merangkai kata indah, tapi setiap kata yang aku tulis ini berasal dari hati yang paling dalam. Kamu adalah anugerah terindah yang Tuhan kasih ke aku. Aku mungkin bukan yang pertama, tapi aku ingin jadi yang terakhir buat kamu. Jangan pernah berubah, tetap jadi Nasya yang aku kenal dan aku cintai.
+            </div>
+
+            <div class="love-message">
+                <div class="heart-icon">
+                    <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+                </div>
+                Kalau cinta itu perjalanan, aku gak peduli seberapa jauh atau sulit jalannya. Yang penting tujuannya kamu, Nasya. Aku rela menempuh ribuan kilometer hanya untuk melihat senyummu. Kamu adalah rumah yang selalu ingin aku pulangi. Terima kasih sudah menerima aku apa adanya.
+            </div>
+
+            <div class="love-message">
+                <div class="heart-icon">
+                    <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+                </div>
+                Bunga boleh layu, pelangi boleh hilang, tapi rasa sayang aku ke kamu gak akan pernah pudar. Kamu adalah definisi sempurna yang gak bisa dijelasin pake kata-kata. Cukup kamu ada, dunia aku udah berwarna. Aku sayang kamu, Nasya. Lebih dari yang kamu tau.
+            </div>
+
+            <div class="love-footer">
+                With love, <span>Rehan</span> for <span>Nasya</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Track Modal -->
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal">
+            <h3>Add Track</h3>
+            <label for="inputUrl">Audio URL (Catbox link)</label>
+            <input type="text" id="inputUrl" placeholder="https://files.catbox.moe/xxxxx.mp3" />
+
+            <label for="inputTitle">Song Title</label>
+            <input type="text" id="inputTitle" placeholder="Song title (optional)" />
+
+            <label for="inputArtist">Artist</label>
+            <input type="text" id="inputArtist" placeholder="Artist (optional)" />
+
+            <label for="inputCover">Cover Image URL (Catbox/other link)</label>
+            <input type="text" id="inputCover" placeholder="https://files.catbox.moe/xxxxx.jpg (optional)" />
+
+            <div class="modal-buttons">
+                <button class="btn-cancel" id="btnCancel">Cancel</button>
+                <button class="btn-save" id="btnSave">Add to Playlist</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ==================== COVER POOL ====================
+        const COVER_POOL = [
+            "https://files.catbox.moe/tq4fvq.jpg",
+            "https://files.catbox.moe/h01qbl.jpg"
+        ];
+
+        function getRandomCover() {
+            if (COVER_POOL.length === 0) return '';
+            return COVER_POOL[Math.floor(Math.random() * COVER_POOL.length)];
+        }
+
+        // ==================== STATE ====================
+        let playlist = [];
+        let currentIndex = -1;
+        let isPlaying = false;
+        let isShuffle = false;
+        let isRepeat = false;
+        let audio = new Audio();
+
+        const btnPlay = document.getElementById('btnPlay');
+        const btnNext = document.getElementById('btnNext');
+        const btnPrev = document.getElementById('btnPrev');
+        const btnShuffle = document.getElementById('btnShuffle');
+        const btnRepeat = document.getElementById('btnRepeat');
+        const btnAddTrack = document.getElementById('btnAddTrack');
+        const progressBar = document.getElementById('progressBar');
+        const progressWrapper = document.getElementById('progressWrapper');
+        const currentTimeEl = document.getElementById('currentTime');
+        const totalTimeEl = document.getElementById('totalTime');
+        const trackTitleEl = document.getElementById('trackTitle');
+        const trackArtistEl = document.getElementById('trackArtist');
+        const trackCount = document.getElementById('trackCount');
+        const playlistEl = document.getElementById('playlist');
+        const coverArt = document.getElementById('coverArt');
+        const modalOverlay = document.getElementById('modalOverlay');
+        const inputUrl = document.getElementById('inputUrl');
+        const inputTitle = document.getElementById('inputTitle');
+        const inputArtist = document.getElementById('inputArtist');
+        const inputCover = document.getElementById('inputCover');
+        const volumeSlider = document.getElementById('volumeSlider');
+        const volIcon = document.getElementById('volIcon');
+
+        audio.volume = 0.7;
+        volumeSlider.value = 70;
+
+        const playSvg = '<svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>';
+        const pauseSvg = '<svg viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>';
+        const volHighSvg = '<svg viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>';
+        const volMuteSvg = '<svg viewBox="0 0 24 24"><path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z"/></svg>';
+
+        function formatTime(s) {
+            if (isNaN(s) || s < 0) return '0:00';
+            const m = Math.floor(s / 60);
+            const sec = Math.floor(s % 60);
+            return `${m}:${sec.toString().padStart(2, '0')}`;
+        }
+
+        function updatePlaylistUI() {
+            trackCount.textContent = `${playlist.length} track${playlist.length !== 1 ? 's' : ''}`;
+            playlistEl.innerHTML = '';
+            if (playlist.length === 0) {
+                playlistEl.innerHTML = '<li style="padding:16px;text-align:center;color:var(--text-muted);font-size:12px">Empty playlist</li>';
+                return;
+            }
+            playlist.forEach((t, i) => {
+                const li = document.createElement('li');
+                li.className = `playlist-item ${i === currentIndex ? 'active' : ''}`;
+                li.innerHTML = `<div class="pl-info"><div class="pl-title">${t.title||'Untitled'}</div><div class="pl-artist">${t.artist||'Unknown'}</div></div>`;
+                li.addEventListener('click', () => playTrack(i));
+                playlistEl.appendChild(li);
+            });
+        }
+
+        async function playTrack(index) {
+            if (index < 0 || index >= playlist.length) return;
+            currentIndex = index;
+            const track = playlist[currentIndex];
+            audio.src = track.url;
+            try {
+                await audio.play();
+                isPlaying = true;
+                updatePlayButton();
+                updateNowPlaying();
+            } catch (e) {
+                alert('Failed to play this track. Check the link.');
+            }
+        }
+
+        function updateNowPlaying() {
+            if (currentIndex >= 0 && currentIndex < playlist.length) {
+                const t = playlist[currentIndex];
+                trackTitleEl.textContent = t.title || 'Untitled';
+                trackArtistEl.textContent = t.artist || 'Unknown';
+                
+                const coverUrl = t.cover || getRandomCover();
+                if (coverUrl) {
+                    coverArt.innerHTML = `<img src="${coverUrl}" alt="cover" onerror="this.style.display='none'; this.parentElement.innerHTML='<div class=cover-placeholder><svg viewBox=\\'0 0 24 24\\'><path d=\\'M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z\\'/></svg><span style=font-size:12px>No Cover</span></div>';">`;
+                } else {
+                    coverArt.innerHTML = `<div class="cover-placeholder"><svg viewBox="0 0 24 24"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg><span style="font-size:12px;">No Cover</span></div>`;
+                }
+            }
+            updatePlaylistUI();
+        }
+
+        function updatePlayButton() {
+            btnPlay.innerHTML = isPlaying ? pauseSvg : playSvg;
+        }
+
+        function playNext() {
+            if (playlist.length === 0) return;
+            if (isShuffle) {
+                currentIndex = Math.floor(Math.random() * playlist.length);
+            } else if (isRepeat && currentIndex === playlist.length - 1) {
+                currentIndex = 0;
+            } else if (currentIndex < playlist.length - 1) {
+                currentIndex++;
+            } else {
+                audio.pause(); isPlaying = false; updatePlayButton(); return;
+            }
+            playTrack(currentIndex);
+        }
+
+        function playPrev() {
+            if (playlist.length === 0) return;
+            if (audio.currentTime > 3) { audio.currentTime = 0; return; }
+            currentIndex = currentIndex > 0 ? currentIndex - 1 : playlist.length - 1;
+            playTrack(currentIndex);
+        }
+
+        btnPlay.addEventListener('click', () => {
+            if (playlist.length === 0) { alert('Add tracks first via Catbox links!'); return; }
+            if (currentIndex === -1) { playTrack(0); return; }
+            if (isPlaying) { audio.pause(); isPlaying = false; }
+            else { audio.play(); isPlaying = true; }
+            updatePlayButton();
+        });
+
+        btnNext.addEventListener('click', playNext);
+        btnPrev.addEventListener('click', playPrev);
+
+        btnShuffle.addEventListener('click', () => {
+            isShuffle = !isShuffle;
+            btnShuffle.style.color = isShuffle ? 'var(--accent)' : 'var(--text-muted)';
+        });
+
+        btnRepeat.addEventListener('click', () => {
+            isRepeat = !isRepeat;
+            btnRepeat.style.color = isRepeat ? 'var(--accent)' : 'var(--text-muted)';
+        });
+
+        audio.addEventListener('timeupdate', () => {
+            const progress = (audio.currentTime / audio.duration) * 100 || 0;
+            progressBar.style.width = `${progress}%`;
+            currentTimeEl.textContent = formatTime(audio.currentTime);
+        });
+
+        audio.addEventListener('loadedmetadata', () => {
+            totalTimeEl.textContent = formatTime(audio.duration);
+        });
+
+        audio.addEventListener('ended', () => {
+            if (isRepeat && playlist.length === 1) { audio.currentTime = 0; audio.play(); return; }
+            playNext();
+        });
+
+        progressWrapper.addEventListener('click', (e) => {
+            const rect = progressWrapper.getBoundingClientRect();
+            audio.currentTime = ((e.clientX - rect.left) / rect.width) * audio.duration;
+        });
+
+        volumeSlider.addEventListener('input', () => {
+            const vol = volumeSlider.value / 100;
+            audio.volume = vol;
+            volIcon.innerHTML = vol === 0 ? volMuteSvg : volHighSvg;
+        });
+
+        btnAddTrack.addEventListener('click', () => {
+            modalOverlay.classList.add('show');
+            inputUrl.value = '';
+            inputTitle.value = '';
+            inputArtist.value = '';
+            inputCover.value = '';
+            inputUrl.focus();
+        });
+
+        document.getElementById('btnCancel').addEventListener('click', () => modalOverlay.classList.remove('show'));
+        modalOverlay.addEventListener('click', (e) => { if (e.target === modalOverlay) modalOverlay.classList.remove('show'); });
+
+        document.getElementById('btnSave').addEventListener('click', () => {
+            const url = inputUrl.value.trim();
+            if (!url) { alert('Please paste a Catbox music link!'); return; }
+            
+            const newTrack = {
+                url: url,
+                title: inputTitle.value.trim() || 'Untitled',
+                artist: inputArtist.value.trim() || 'Unknown',
+                cover: inputCover.value.trim() || getRandomCover(),
+            };
+            
+            playlist.push(newTrack);
+            updatePlaylistUI();
+            if (currentIndex === -1) playTrack(0);
+            modalOverlay.classList.remove('show');
+        });
+
+        document.addEventListener('keydown', (e) => {
+            if (e.code === 'Space' && e.target === document.body) { e.preventDefault(); btnPlay.click(); }
+        });
+
+        updatePlaylistUI();
+    </script>
+</body>
+</html>
