@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rehan & Nasya</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0a1628;
+            --surface: rgba(15, 32, 53, 0.85);
+            --surface2: rgba(21, 42, 69, 0.9);
+            --border: rgba(30, 61, 92, 0.6);
+            --text: #dce8f5;
+            --text-muted: #6b8aaa;
+            --accent: #2196f3;
+            --accent-hover: #42a5f5;
+            --love-pink: #ff6b9d;
+            --shadow: 0 8px 32px rgba(0, 20, 40, 0.6);
+            --glass-bg: rgba(15, 32, 53, 0.7);
+            --glass-border: rgba(255, 255, 255, 0.12);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            color: var(--text);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .bg-image {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-image: url('https://files.catbox.moe/placeholder.jpg');
+            background-size: cover; background-position: center; background-repeat: no-repeat; z-index: -2;
+        }
+
+        .bg-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(135deg, rgba(10, 22, 40, 0.85), rgba(10, 22, 40, 0.7), rgba(10, 22, 40, 0.85));
+            z-index: -1;
+        }
+
+        .page { display: none; min-height: 100vh; animation: fadeIn 0.5s ease; }
+        .page.active { display: flex; flex-direction: column; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+
+        .landing-container {
+            flex: 1; display: flex; flex-direction: column; justify-content: center;
+            align-items: center; padding: 40px 20px; text-align: center;
+        }
+
+        .landing-title {
+            font-size: 36px; font-weight: 700; margin-bottom: 8px;
+            background: linear-gradient(135deg, #fff, #64b5f6, #ff6b9d);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+            letter-spacing: 1px;
+        }
+
+        .landing-subtitle { font-size: 15px; color: var(--text-muted); margin-bottom: 50px; letter-spacing: 1px; }
+
+        .big-buttons { display: flex; flex-direction: column; gap: 20px; width: 100%; max-width: 380px; }
+
+        .big-btn {
+            display: flex; align-items: center; justify-content: center; gap: 16px;
+            padding: 28px 24px; border-radius: 20px; border: 1.5px solid var(--glass-border);
+            cursor: pointer; font-family: 'Inter', sans-serif; font-size: 18px; font-weight: 600;
+            color: #fff; transition: all 0.3s ease; backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px); text-decoration: none; letter-spacing: 1px;
+            position: relative; overflow: hidden;
+        }
+
+        .big-btn::before {
+            content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+            transition: left 0.5s ease;
+        }
+        .big-btn:hover::before { left: 100%; }
+
+        .btn-music { background: rgba(33,150,243,0.25); border-color: rgba(33,150,243,0.5); box-shadow: 0 8px 32px rgba(33,150,243,0.2); }
+        .btn-music:hover { background: rgba(33,150,243,0.4); border-color: rgba(33,150,243,0.7); transform: translateY(-3px); box-shadow: 0 12px 40px rgba(33,150,243,0.35); }
+        .btn-prayer { background: rgba(255,107,157,0.25); border-color: rgba(255,107,157,0.5); box-shadow: 0 8px 32px rgba(255,107,157,0.2); }
+        .btn-prayer:hover { background: rgba(255,107,157,0.4); border-color: rgba(255,107,157,0.7); transform: translateY(-3px); box-shadow: 0 12px 40px rgba(255,107,157,0.35); }
+
+        .big-btn svg { width: 32px; height: 32px; fill: currentColor; flex-shrink: 0; }
+        .big-btn .btn-label { text-align: left; }
+        .big-btn .btn-label .main-text { font-size: 18px; font-weight: 700; }
+        .big-btn .btn-label .sub-text { font-size: 12px; font-weight: 400; opacity: 0.8; margin-top: 2px; }
+
+        .back-btn {
+            position: fixed; top: 16px; left: 16px; background: var(--glass-bg);
+            border: 1px solid var(--glass-border); color: #fff; padding: 10px 18px;
+            border-radius: 12px; cursor: pointer; font-family: 'Inter', sans-serif; font-size: 13px;
+            backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); z-index: 50;
+            transition: all 0.2s; display: flex; align-items: center; gap: 6px;
+        }
+        .back-btn:hover { background: var(--accent); border-color: var(--accent); }
+        .back-btn svg { width: 16px; height: 16px; fill: currentColor; }
+
+        .music-page-container { flex: 1; display: flex; justify-content: center; align-items: center; padding: 80px 20px 40px; }
+
+        .player-container {
+            background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: 24px;
+            padding: 28px 24px 20px; width: 100%; max-width: 460px;
+            backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); box-shadow: var(--shadow);
+        }
+
+        .cover-art {
+            width: 100%; aspect-ratio: 1/1; background: var(--surface2); border-radius: 16px;
+            margin-bottom: 20px; display: flex; align-items: center; justify-content: center;
+            overflow: hidden; border: 2px solid var(--glass-border);
+        }
+        .cover-art img { width: 100%; height: 100%; object-fit: cover; }
+
+        .cover-placeholder { display: flex; flex-direction: column; align-items: center; gap: 8px; color: var(--text-muted); }
+        .cover-placeholder svg { width: 64px; height: 64px; opacity: 0.4; fill: var(--accent); }
+
+        .now-playing { text-align: center; margin-bottom: 16px; }
+        .track-title { font-size: 18px; font-weight: 700; margin-bottom: 4px; }
+        .track-artist { font-size: 13px; color: var(--text-muted); }
+
+        .progress-container { margin-bottom: 6px; }
+        .progress-bar-wrapper { width: 100%; height: 6px; background: rgba(255,255,255,0.1); border-radius: 3px; cursor: pointer; }
+        .progress-bar { height: 100%; background: linear-gradient(90deg, var(--accent), var(--accent-hover)); border-radius: 3px; transition: width 0.1s linear; }
+
+        .time-display { display: flex; justify-content: space-between; font-size: 11px; color: var(--text-muted); margin-bottom: 14px; }
+
+        .volume-control { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+        .volume-control input[type="range"] { -webkit-appearance: none; width: 100%; height: 4px; background: rgba(255,255,255,0.1); border-radius: 2px; cursor: pointer; }
+        .volume-control input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 14px; height: 14px; background: var(--accent); border-radius: 50%; cursor: pointer; border: 2px solid var(--bg); }
+        .vol-icon svg { width: 18px; height: 18px; fill: var(--text-muted); }
+
+        .controls { display: flex; justify-content: center; align-items: center; gap: 16px; margin-bottom: 16px; }
+        .btn { background: none; border: none; color: var(--text); cursor: pointer; transition: all 0.2s; border-radius: 50%; display: flex; align-items: center; justify-content: center; padding: 8px; }
+        .btn:hover { color: var(--accent-hover); }
+        .btn-play { width: 54px; height: 54px; background: var(--accent); color: #fff; border-radius: 50%; box-shadow: 0 4px 20px rgba(33,150,243,0.5); padding: 0; }
+        .btn-play:hover { background: var(--accent-hover); transform: scale(1.06); }
+        .btn-play svg { width: 22px; height: 22px; fill: currentColor; }
+        .btn-icon svg { width: 18px; height: 18px; fill: currentColor; }
+
+        .playlist-section { border-top: 1px solid var(--glass-border); padding-top: 12px; margin-top: 8px; }
+        .playlist-header { font-size: 12px; font-weight: 600; color: var(--text-muted); margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
+        .btn-add { font-size: 11px; background: var(--surface2); border: 1px solid var(--glass-border); color: var(--accent); padding: 5px 10px; border-radius: 6px; cursor: pointer; font-family: 'Inter', sans-serif; }
+        .btn-add:hover { background: var(--accent); color: #fff; }
+        .playlist { list-style: none; max-height: 160px; overflow-y: auto; display: flex; flex-direction: column; gap: 3px; }
+        .playlist-item { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 8px; cursor: pointer; font-size: 12px; transition: all 0.2s; }
+        .playlist-item:hover { background: var(--surface2); }
+        .playlist-item.active { background: var(--accent); color: #fff; }
+        .pl-info { flex: 1; min-width: 0; }
+        .pl-title { font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .pl-artist { font-size: 10px; color: var(--text-muted); }
+
+        .prayer-container { flex: 1; display: flex; justify-content: center; align-items: center; padding: 80px 20px 40px; }
+        .prayer-card {
+            background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: 24px;
+            padding: 30px 24px; width: 100%; max-width: 440px;
+            backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); box-shadow: var(--shadow); text-align: center;
+        }
+        .prayer-card h2 { font-size: 20px; font-weight: 700; margin-bottom: 6px; color: var(--accent); }
+        .prayer-card .prayer-date { font-size: 13px; color: var(--text-muted); margin-bottom: 20px; }
+        .prayer-card .prayer-city { font-size: 15px; font-weight: 600; margin-bottom: 20px; color: var(--love-pink); }
+        .prayer-list { display: flex; flex-direction: column; gap: 10px; }
+        .prayer-item { display: flex; justify-content: space-between; align-items: center; padding: 14px 18px; background: var(--surface2); border-radius: 12px; border: 1px solid var(--glass-border); transition: all 0.2s; }
+        .prayer-item:hover { border-color: var(--accent); }
+        .prayer-item.active-prayer { background: rgba(33,150,243,0.2); border-color: var(--accent); box-shadow: 0 0 16px rgba(33,150,243,0.2); }
+        .prayer-name { font-size: 15px; font-weight: 600; }
+        .prayer-time { font-size: 16px; font-weight: 700; color: var(--accent); }
+        .prayer-item.active-prayer .prayer-time { color: #fff; }
+        .prayer-city-select { display: flex; gap: 10px; margin-bottom: 20px; }
+        .prayer-city-select input { flex: 1; padding: 10px 14px; border: 1px solid var(--glass-border); border-radius: 10px; background: var(--surface2); color: var(--text); font-family: 'Inter', sans-serif; font-size: 13px; outline: none; }
+        .prayer-city-select input:focus { border-color: var(--accent); }
+        .prayer-city-select button { padding: 10px 16px; background: var(--accent); color: #fff; border: none; border-radius: 10px; cursor: pointer; font-family: 'Inter', sans-serif; font-size: 13px; font-weight: 500; }
+        .prayer-city-select button:hover { background: var(--accent-hover); }
+
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(5,15,30,0.8); backdrop-filter: blur(4px); z-index: 200; justify-content: center; align-items: center; }
+        .modal-overlay.show { display: flex; }
+        .modal { background: var(--surface); border: 1px solid var(--glass-border); border-radius: 20px; padding: 24px; width: 90%; max-width: 440px; box-shadow: var(--shadow); }
+        .modal h3 { margin-bottom: 16px; font-size: 16px; font-weight: 600; }
+        .modal label { display: block; font-size: 12px; color: var(--text-muted); margin-bottom: 6px; font-weight: 500; }
+        .modal input { width: 100%; padding: 12px 16px; border: 1px solid var(--glass-border); border-radius: 10px; background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; font-size: 13px; margin-bottom: 14px; outline: none; }
+        .modal input:focus { border-color: var(--accent); }
+        .modal-buttons { display: flex; gap: 10px; justify-content: flex-end; }
+        .modal-buttons button { padding: 8px 18px; border-radius: 8px; border: none; cursor: pointer; font-family: 'Inter', sans-serif; font-size: 13px; font-weight: 500; }
+        .btn-cancel { background: var(--surface2); color: var(--text); }
+        .btn-save { background: var(--accent); color: #fff; }
+
+        @media (max-width: 500px) {
+            .landing-title { font-size: 26px; }
+            .big-btn { padding: 22px 18px; font-size: 16px; }
+            .big-btn svg { width: 26px; height: 26px; }
+            .big-btn .btn-label .main-text { font-size: 16px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="bg-image" id="bgImage"></div>
+    <div class="bg-overlay"></div>
+
+    <!-- LANDING PAGE -->
+    <div class="page active" id="page-landing">
+        <div class="landing-container">
+            <h1 class="landing-title">Rehan & Nasya</h1>
+            <p class="landing-subtitle">Every love story is beautiful, but ours is my favorite.</p>
+            <div class="big-buttons">
+                <button class="big-btn btn-music" onclick="showPage('music')">
+                    <svg viewBox="0 0 24 24"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg>
+                    <div class="btn-label"><div class="main-text">Play Music</div><div class="sub-text">Listen to our favorite songs</div></div>
+                </button>
+                <button class="big-btn btn-prayer" onclick="showPage('prayer')">
+                    <svg viewBox="0 0 24 24"><path d="M18 7V4h2V2H4v2h2v3C6 13.08 11.5 15 12 18c.5-3 6-4.92 6-11zM8 7.3V5h8v2.3c0 4.47-3.5 6.8-4 8.7-.5-1.9-4-4.23-4-8.7z"/></svg>
+                    <div class="btn-label"><div class="main-text">Jadwal Shalat</div><div class="sub-text">Prayer times for today</div></div>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MUSIC PAGE -->
+    <div class="page" id="page-music">
+        <button class="back-btn" onclick="showPage('landing')">
+            <svg viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg> Back
+        </button>
+        <div class="music-page-container">
+            <div class="player-container">
+                <div class="cover-art" id="coverArt">
+                    <div class="cover-placeholder">
+                        <svg viewBox="0 0 24 24"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg>
+                        <span style="font-size:12px;">No Track</span>
+                    </div>
+                </div>
+                <div class="now-playing">
+                    <div class="track-title" id="trackTitle">No Track Selected</div>
+                    <div class="track-artist" id="trackArtist">Add songs via Catbox links</div>
+                </div>
+                <div class="progress-container">
+                    <div class="progress-bar-wrapper" id="progressWrapper">
+                        <div class="progress-bar" id="progressBar" style="width:0%"></div>
+                    </div>
+                </div>
+                <div class="time-display"><span id="currentTime">0:00</span><span id="totalTime">0:00</span></div>
+                <div class="volume-control">
+                    <span class="vol-icon" id="volIcon">
+                        <svg viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>
+                    </span>
+                    <input type="range" id="volumeSlider" min="0" max="100" value="70" />
+                </div>
+                <div class="controls">
+                    <button class="btn btn-icon" id="btnShuffle"><svg viewBox="0 0 24 24"><path d="M10.59 9.17L5.41 4 4 5.41l5.17 5.17 1.42-1.41zM14.5 4l2.04 2.04L4 18.59 5.41 20 17.96 7.46 20 9.5V4h-5.5zm.33 9.41l-1.41 1.41 3.13 3.13L14.5 20H20v-5.5l-2.04 2.04-3.13-3.13z"/></svg></button>
+                    <button class="btn btn-icon" id="btnPrev"><svg viewBox="0 0 24 24"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg></button>
+                    <button class="btn btn-play" id="btnPlay"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></button>
+                    <button class="btn btn-icon" id="btnNext"><svg viewBox="0 0 24 24"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/></svg></button>
+                    <button class="btn btn-icon" id="btnRepeat"><svg viewBox="0 0 24 24"><path d="M7 7h10v3l4-4-4-4v3H5v6h2V7zm10 10H7v-3l-4 4 4 4v-3h12v-6h-2v4z"/></svg></button>
+                </div>
+                <div class="playlist-section">
+                    <div class="playlist-header"><span>Playlist</span><button class="btn-add" id="btnAddTrack">+ Add Track</button></div>
+                    <ul class="playlist" id="playlist"><li style="padding:16px;text-align:center;color:var(--text-muted);font-size:12px">Empty playlist</li></ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- PRAYER PAGE -->
+    <div class="page" id="page-prayer">
+        <button class="back-btn" onclick="showPage('landing')">
+            <svg viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg> Back
+        </button>
+        <div class="prayer-container">
+            <div class="prayer-card">
+                <h2>Jadwal Shalat</h2>
+                <p class="prayer-date" id="prayerDate">Loading...</p>
+                <div class="prayer-city-select">
+                    <input type="text" id="cityInput" placeholder="City name (e.g., Jakarta)" value="Jakarta" />
+                    <button id="btnSearchCity">Search</button>
+                </div>
+                <p class="prayer-city" id="prayerCity">Jakarta</p>
+                <div class="prayer-list" id="prayerList">
+                    <div class="prayer-item"><span class="prayer-name">Loading...</span><span class="prayer-time">--:--</span></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL -->
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal">
+            <h3>Add Track</h3>
+            <label for="inputUrl">Audio URL (Catbox link)</label>
+            <input type="text" id="inputUrl" placeholder="https://files.catbox.moe/xxxxx.mp3" />
+            <label for="inputTitle">Song Title</label>
+            <input type="text" id="inputTitle" placeholder="Song title (optional)" />
+            <label for="inputArtist">Artist</label>
+            <input type="text" id="inputArtist" placeholder="Artist (optional)" />
+            <label for="inputCover">Cover Image URL</label>
+            <input type="text" id="inputCover" placeholder="https://files.catbox.moe/xxxxx.jpg (optional)" />
+            <div class="modal-buttons">
+                <button class="btn-cancel" id="btnCancel">Cancel</button>
+                <button class="btn-save" id="btnSave">Add to Playlist</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ==================== BACKGROUND ====================
+        const BACKGROUND_IMAGE_URL = 'https://files.catbox.moe/placeholder.jpg';
+        document.getElementById('bgImage').style.backgroundImage = `url('${BACKGROUND_IMAGE_URL}')`;
+
+        // ==================== NAVIGATION ====================
+        function showPage(pageId) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.getElementById('page-' + pageId).classList.add('active');
+            window.scrollTo(0, 0);
+        }
+
+        // ==================== PRAYER ====================
+        const prayerNames = [
+            { key: 'Fajr', name: 'Subuh' },
+            { key: 'Sunrise', name: 'Syuruq' },
+            { key: 'Dhuhr', name: 'Dzuhur' },
+            { key: 'Asr', name: 'Ashar' },
+            { key: 'Maghrib', name: 'Maghrib' },
+            { key: 'Isha', name: 'Isya' }
+        ];
+
+        async function fetchPrayerTimes(city, country = 'Indonesia') {
+            document.getElementById('prayerDate').textContent = 'Loading...';
+            document.getElementById('prayerList').innerHTML = '<div class="prayer-item"><span class="prayer-name">Loading...</span><span class="prayer-time">--:--</span></div>';
+            try {
+                const now = new Date();
+                const dateStr = `${now.getDate()}-${now.getMonth() + 1}-${now.getFullYear()}`;
+                const response = await fetch(`https://api.aladhan.com/v1/timingsByCity/${dateStr}?city=${encodeURIComponent(city)}&country=${encodeURIComponent(country)}&method=20`);
+                if (!response.ok) throw new Error('City not found');
+                const data = await response.json();
+                const timings = data.data.timings;
+                const dateInfo = data.data.date;
+                document.getElementById('prayerDate').textContent = `${dateInfo.gregorian.weekday.en}, ${dateInfo.gregorian.day} ${dateInfo.gregorian.month.en} ${dateInfo.gregorian.year} | ${dateInfo.hijri.day} ${dateInfo.hijri.month.en} ${dateInfo.hijri.year} H`;
+                document.getElementById('prayerCity').textContent = city.charAt(0).toUpperCase() + city.slice(1);
+                const nowTime = new Date();
+                const currentMinutes = nowTime.getHours() * 60 + nowTime.getMinutes();
+                let nextPrayerFound = false;
+                const prayerListEl = document.getElementById('prayerList');
+                prayerListEl.innerHTML = '';
+                prayerNames.forEach((p) => {
+                    const time = timings[p.key].split(' ')[0];
+                    const [h, m] = time.split(':');
+                    const prayerMinutes = parseInt(h) * 60 + parseInt(m);
+                    let isNext = false;
+                    if (!nextPrayerFound && prayerMinutes > currentMinutes) { isNext = true; nextPrayerFound = true; }
+                    const div = document.createElement('div');
+                    div.className = `prayer-item ${isNext ? 'active-prayer' : ''}`;
+                    div.innerHTML = `<span class="prayer-name">${p.name}</span><span class="prayer-time">${time}</span>`;
+                    prayerListEl.appendChild(div);
+                });
+                if (!nextPrayerFound) {
+                    const firstItem = prayerListEl.querySelector('.prayer-item');
+                    if (firstItem) firstItem.classList.add('active-prayer');
+                }
+            } catch (e) {
+                document.getElementById('prayerList').innerHTML = '<div class="prayer-item"><span class="prayer-name">Error</span><span class="prayer-time">City not found</span></div>';
+                document.getElementById('prayerDate').textContent = 'Failed to load';
+            }
+        }
+
+        document.getElementById('btnSearchCity').addEventListener('click', () => {
+            const city = document.getElementById('cityInput').value.trim();
+            if (city) fetchPrayerTimes(city);
+        });
+        document.getElementById('cityInput').addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                const city = document.getElementById('cityInput').value.trim();
+                if (city) fetchPrayerTimes(city);
+            }
+        });
+        fetchPrayerTimes('Jakarta');
+
+        // ==================== MUSIC PLAYER ====================
+        const COVER_POOL = [
+            "https://picsum.photos/400/400?random=1",
+            "https://picsum.photos/400/400?random=2",
+            "https://picsum.photos/400/400?random=3",
+            "https://picsum.photos/400/400?random=4",
+            "https://picsum.photos/400/400?random=5"
+        ];
+        function getRandomCover() { return COVER_POOL[Math.floor(Math.random() * COVER_POOL.length)]; }
+
+        let playlist = [];
+        let currentIndex = -1;
+        let audio = new Audio();
+        let isPlaying = false;
+        let shuffle = false;
+        let repeat = false;
+
+        audio.volume = 0.7;
+        document.getElementById('volumeSlider').addEventListener('input', (e) => {
+            audio.volume = e.target.value / 100;
+            updateVolIcon(audio.volume);
+        });
+
+        function updateVolIcon(vol) {
+            const icon = document.getElementById('volIcon');
+            if (vol === 0) icon.innerHTML = '<svg viewBox="0 0 24 24"><path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z"/></svg>';
+            else if (vol < 0.5) icon.innerHTML = '<svg viewBox="0 0 24 24"><path d="M18.5 12c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM5 9v6h4l5 5V4L9 9H5z"/></svg>';
+            else icon.innerHTML = '<svg viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>';
+        }
+
+        audio.addEventListener('timeupdate', () => {
+            if (audio.duration) {
+                const pct = (audio.currentTime / audio.duration) * 100;
+                document.getElementById('progressBar').style.width = pct + '%';
+                document.getElementById('currentTime').textContent = formatTime(audio.currentTime);
+                document.getElementById('totalTime').textContent = formatTime(audio.duration);
+            }
+        });
+
+        audio.addEventListener('ended', () => {
+            if (repeat) { audio.currentTime = 0; audio.play(); }
+            else nextTrack();
+        });
+
+        audio.addEventListener('loadedmetadata', () => {
+            document.getElementById('totalTime').textContent = formatTime(audio.duration);
+        });
+
+        document.getElementById('progressWrapper').addEventListener('click', (e) => {
+            if (!audio.duration) return;
+            const rect = e.target.getBoundingClientRect();
+            const pct = (e.clientX - rect.left) / rect.width;
+            audio.currentTime = pct * audio.duration;
+        });
+
+        function formatTime(sec) {
+            const m = Math.floor(sec / 60);
+            const s = Math.floor(sec % 60).toString().padStart(2, '0');
+            return `${m}:${s}`;
+        }
+
+        function loadTrack(index) {
+            if (index < 0 || index >= playlist.length) return;
+            currentIndex = index;
+            const track = playlist[index];
+            audio.src = track.url;
+            document.getElementById('trackTitle').textContent = track.title || 'Unknown Track';
+            document.getElementById('trackArtist').textContent = track.artist || 'Unknown Artist';
+            document.getElementById('coverArt').innerHTML = `<img src="${track.cover || getRandomCover()}" alt="cover" />`;
+            document.getElementById('progressBar').style.width = '0%';
+            document.getElementById('currentTime').textContent = '0:00';
+            document.getElementById('totalTime').textContent = '0:00';
+            highlightActive();
+        }
+
+        function playTrack(index) {
+            if (index === currentIndex) { togglePlay(); return; }
+            loadTrack(index);
+            audio.play().then(() => { isPlaying = true; updatePlayBtn(); });
+        }
+
+        function togglePlay() {
+            if (!audio.src) { if (playlist.length > 0) playTrack(0); return; }
+            if (isPlaying) { audio.pause(); isPlaying = false; }
+            else { audio.play(); isPlaying = true; }
+            updatePlayBtn();
+        }
+
+        function updatePlayBtn() {
+            document.getElementById('btnPlay').innerHTML = isPlaying
+                ? '<svg viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>'
+                : '<svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>';
+        }
+
+        function nextTrack() {
+            if (playlist.length === 0) return;
+            let next;
+            if (shuffle) {
+                do { next = Math.floor(Math.random() * playlist.length); } while (next === currentIndex && playlist.length > 1);
+            } else {
+                next = (currentIndex + 1) % playlist.length;
+            }
+            loadTrack(next);
+            if (isPlaying) audio.play();
+        }
+
+        function prevTrack() {
+            if (playlist.length === 0) return;
+            const prev = (currentIndex - 1 + playlist.length) % playlist.length;
+            loadTrack(prev);
+            if (isPlaying) audio.play();
+        }
+
+        function highlightActive() {
+            document.querySelectorAll('.playlist-item').forEach((el, i) => {
+                el.classList.toggle('active', i === currentIndex);
+            });
+        }
+
+        function renderPlaylist() {
+            const pl = document.getElementById('playlist');
+            if (playlist.length === 0) {
+                pl.innerHTML = '<li style="padding:16px;text-align:center;color:var(--text-muted);font-size:12px">Empty playlist</li>';
+                return;
+            }
+            pl.innerHTML = playlist.map((t, i) => `
+                <li class="playlist-item ${i === currentIndex ? 'active' : ''}" onclick="playTrack(${i})">
+                    <span class="pl-info"><span class="pl-title">${t.title || 'Track ' + (i+1)}</span><span class="pl-artist">${t.artist || 'Unknown'}</span></span>
+                    <button style="background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:16px;padding:4px 8px" onclick="event.stopPropagation();removeTrack(${i})">×</button>
+                </li>
+            `).join('');
+        }
+
+        function removeTrack(index) {
+            playlist.splice(index, 1);
+            if (currentIndex === index) { audio.pause(); audio.src = ''; currentIndex = -1; isPlaying = false; updatePlayBtn(); document.getElementById('coverArt').innerHTML = '<div class="cover-placeholder"><svg viewBox="0 0 24 24"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg><span style="font-size:12px;">No Track</span></div>'; document.getElementById('trackTitle').textContent = 'No Track Selected'; document.getElementById('trackArtist').textContent = 'Add songs via Catbox links'; }
+            else if (currentIndex > index) currentIndex--;
+            renderPlaylist();
+        }
+
+        // Modal
+        document.getElementById('btnAddTrack').addEventListener('click', () => {
+            document.getElementById('modalOverlay').classList.add('show');
+        });
+        document.getElementById('btnCancel').addEventListener('click', () => {
+            document.getElementById('modalOverlay').classList.remove('show');
+        });
+        document.getElementById('btnSave').addEventListener('click', () => {
+            const url = document.getElementById('inputUrl').value.trim();
+            if (!url) return;
+            playlist.push({
+                url: url,
+                title: document.getElementById('inputTitle').value.trim() || 'Track ' + (playlist.length + 1),
+                artist: document.getElementById('inputArtist').value.trim() || 'Unknown',
+                cover: document.getElementById('inputCover').value.trim() || getRandomCover()
+            });
+            document.getElementById('inputUrl').value = '';
+            document.getElementById('inputTitle').value = '';
+            document.getElementById('inputArtist').value = '';
+            document.getElementById('inputCover').value = '';
+            document.getElementById('modalOverlay').classList.remove('show');
+            renderPlaylist();
+            if (currentIndex === -1) playTrack(0);
+        });
+
+        // Controls
+        document.getElementById('btnPlay').addEventListener('click', togglePlay);
+        document.getElementById('btnNext').addEventListener('click', nextTrack);
+        document.getElementById('btnPrev').addEventListener('click', prevTrack);
+        document.getElementById('btnShuffle').addEventListener('click', () => {
+            shuffle = !shuffle;
+            document.getElementById('btnShuffle').style.color = shuffle ? 'var(--accent)' : '';
+        });
+        document.getElementById('btnRepeat').addEventListener('click', () => {
+            repeat = !repeat;
+            document.getElementById('btnRepeat').style.color = repeat ? 'var(--accent)' : '';
+        });
+
+        // Keyboard
+        document.addEventListener('keydown', (e) => {
+            if (e.code === 'Space' && document.activeElement === document.body) { e.preventDefault(); togglePlay(); }
+            if (e.code === 'ArrowRight') nextTrack();
+            if (e.code === 'ArrowLeft') prevTrack();
+        });
+    </script>
+</body>
+</html>
